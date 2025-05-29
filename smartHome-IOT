@@ -1,0 +1,50 @@
+#define BLYNK_TEMPLATE_ID "TMPL6A3lOWB4p"
+#define BLYNK_TEMPLATE_NAME "Praktikum 4"
+#define BLYNK_AUTH_TOKEN "Qqbm1UNVi5pMk8Q-fxTSozA8ipxMCP1t"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+// WiFi credentials
+char ssid[] = "NAMA_WIFI_KAMU";
+char pass[] = "PASSWORD_WIFI_KAMU";
+
+// Pin assignment (NodeMCU)
+#define pir_pin D3    // GPIO0
+#define ldrPin A0
+#define Lampu D8      // GPIO15
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  pinMode(pir_pin, INPUT);
+  pinMode(Lampu, OUTPUT);
+  digitalWrite(Lampu, LOW);
+}
+
+void loop() {
+  Blynk.run();
+
+  int ldrValue = analogRead(ldrPin);
+  bool motionDetected = digitalRead(pir_pin);
+
+  Serial.print(" | LDR: ");
+  Serial.print(ldrValue);
+  Serial.print(" | Motion: ");
+  Serial.println(motionDetected);
+
+  // Kirim data ke Blynk Virtual Pin
+  Blynk.virtualWrite(V0, ldrValue);
+  Blynk.virtualWrite(V1, motionDetected);
+
+  if (ldrValue > 600 && motionDetected) {
+    digitalWrite(Lampu, HIGH);
+    Blynk.virtualWrite(V2, 1);  // Status lampu ON
+  } else {
+    digitalWrite(Lampu, LOW);
+    Blynk.virtualWrite(V2, 0);  // Status lampu OFF
+  }
+
+  delay(500);
+}
