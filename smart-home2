@@ -1,0 +1,23 @@
+#define ldrPin A0        // pin analog untuk sensor LDR
+#define lampuPin 8       // pin digital untuk LED/lampu
+
+void setup() {
+  pinMode(lampuPin, OUTPUT);
+  digitalWrite(lampuPin, LOW);
+
+  Serial.begin(9600);  // Untuk monitoring di Serial Monitor
+}
+
+void loop() {
+  int ldrValue = analogRead(ldrPin);  // Baca nilai LDR
+  Serial.print("Nilai LDR: ");
+  Serial.println(ldrValue);
+
+  if (ldrValue > 600) {  // Jika gelap, nyalakan lampu
+    digitalWrite(lampuPin, HIGH);
+  } else {               // Jika terang, matikan lampu
+    digitalWrite(lampuPin, LOW);
+  }
+
+  delay(1000);  // Tunggu 1 detik
+}
