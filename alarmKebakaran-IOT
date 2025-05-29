@@ -1,0 +1,66 @@
+#define BLYNK_TEMPLATE_ID "TMPL6A3lOWB4p"
+#define BLYNK_TEMPLATE_NAME "Praktikum 4"
+#define BLYNK_AUTH_TOKEN "Qqbm1UNVi5pMk8Q-fxTSozA8ipxMCP1t"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <DHT.h>
+
+// WiFi Credentials
+char ssid[] = "NAMA_WIFI_KAMU";       // Ganti dengan nama WiFi kamu
+char pass[] = "PASSWORD_WIFI_KAMU";   // Ganti dengan password WiFi kamu
+
+// DHT Configuration
+#define DHTPIN D2          // Pin DHT22 terhubung ke D2 (GPIO4)
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
+
+// Sensor dan Aktuator
+#define smokePin A0
+#define LED1 D7            // LED Merah
+#define LED2 D8            // LED Hijau
+#define buzzer D4
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  dht.begin();
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+}
+
+void loop() {
+  Blynk.run();  // Menjaga koneksi ke Blynk Cloud
+
+  float suhu = dht.readTemperature();     // Baca suhu dari DHT22
+  int asap = analogRead(smokePin);        // Baca nilai dari sensor asap MQ-2
+
+  Serial.print("Suhu: ");
+  Serial.println(suhu);
+  Serial.print("Asap: ");
+  Serial.println(asap);
+
+  // Kirim data ke Blynk Virtual Pin
+  Blynk.virtualWrite(V0, suhu);   // V0 untuk suhu
+  Blynk.virtualWrite(V1, asap);   // V1 untuk asap
+
+  // Logika kondisi
+  if (asap > 400 && suhu > 50) {
+    digitalWrite(LED1, HIGH);
+    digitalWrite(LED2, LOW);
+    tone(buzzer, 500);
+    Blynk.virtualWrite(V2, 1);    // V2 untuk status buzzer
+    delay(500);
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED2, HIGH);
+  } else {
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED2, LOW);
+    noTone(buzzer);
+    Blynk.virtualWrite(V2, 0);    // V2 mati
+  }
+
+  delay(1000); // Tunggu 1 detik sebelum loop ulang
+}
