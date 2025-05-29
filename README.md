@@ -13,9 +13,9 @@ void setup() {
     pinMode(lampuHijau, OUTPUT);
     pinMode(buzzer, OUTPUT);
 
-    myServo.attach(servoPin);
+   // myServo.attach(servoPin);
     Serial.begin(9600);
-    myServo.write(0);
+    myServo.write(0); //
 }
 
 void loop() {
@@ -23,7 +23,7 @@ void loop() {
     Serial.print("Kelembapan: ");
     Serial.println(soilValue);
 
-    if (soilValue > 600) {
+   // if (soilValue > 600) {
         digitalWrite(lampuMerah, LOW); 
         digitalWrite(lampuHijau, HIGH); 
         noTone(buzzer);                 
@@ -35,5 +35,5 @@ void loop() {
         myServo.write(90);               
     }
 
-    delay(1000); 
+   // delay(1000); //
 }
