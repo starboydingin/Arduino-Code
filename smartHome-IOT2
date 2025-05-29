@@ -1,0 +1,48 @@
+#define BLYNK_TEMPLATE_ID "TMPLxxxxx"         // Ganti sesuai Blynk
+#define BLYNK_TEMPLATE_NAME "Smart LDR Lamp"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"      // Ganti dengan token kamu
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+char ssid[] = "NAMA_WIFI_KAMU";      // Ganti dengan nama WiFi
+char pass[] = "PASSWORD_WIFI_KAMU";  // Ganti dengan password WiFi
+
+#define ldrPin A0
+#define lampuPin D2
+
+int manualLampControl = 0;
+
+BLYNK_WRITE(V1) {
+  manualLampControl = param.asInt();  // 1 = ON, 0 = OFF
+}
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  pinMode(lampuPin, OUTPUT);
+  digitalWrite(lampuPin, LOW);
+}
+
+void loop() {
+  Blynk.run();
+
+  int ldrValue = analogRead(ldrPin);
+  Serial.print("LDR: ");
+  Serial.println(ldrValue);
+
+  Blynk.virtualWrite(V0, ldrValue);  // Kirim nilai LDR ke Blynk V0
+
+  if (manualLampControl == 1) {
+    digitalWrite(lampuPin, HIGH);  // Paksa lampu nyala dari app
+  } else {
+    if (ldrValue > 600) {          // Nilai tinggi = gelap
+      digitalWrite(lampuPin, HIGH);
+    } else {
+      digitalWrite(lampuPin, LOW);
+    }
+  }
+
+  delay(1000);
+}
