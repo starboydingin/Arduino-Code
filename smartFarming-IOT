@@ -1,0 +1,63 @@
+#define BLYNK_TEMPLATE_ID "TMPL6A3lOWB4p"
+#define BLYNK_TEMPLATE_NAME "Praktikum 4"
+#define BLYNK_AUTH_TOKEN "Qqbm1UNVi5pMk8Q-fxTSozA8ipxMCP1t"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <Servo.h>
+
+// WiFi credentials
+char ssid[] = "NAMA_WIFI_KAMU";
+char pass[] = "PASSWORD_WIFI_KAMU";
+
+// Pin ESP8266 (NodeMCU)
+#define SOIL_PIN A0
+#define lampuMerah D6
+#define lampuHijau D7
+#define buzzer D5
+#define servoPin D8
+
+Servo myServo;
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  pinMode(lampuMerah, OUTPUT);
+  pinMode(lampuHijau, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+
+  myServo.attach(servoPin);
+  myServo.write(0);
+}
+
+void loop() {
+  Blynk.run();
+
+  int soilValue = analogRead(SOIL_PIN);
+  Serial.print("Kelembapan: ");
+  Serial.println(soilValue);
+
+  // Kirim data kelembapan ke Blynk V0
+  Blynk.virtualWrite(V0, soilValue);
+
+  if (soilValue > 600) {
+    digitalWrite(lampuMerah, LOW);
+    digitalWrite(lampuHijau, HIGH);
+    noTone(buzzer);
+    myServo.write(0);
+
+    Blynk.virtualWrite(V1, 0); // Status alarm OFF
+    Blynk.virtualWrite(V2, 0); // Servo posisi 0
+  } else {
+    digitalWrite(lampuMerah, HIGH);
+    digitalWrite(lampuHijau, LOW);
+    tone(buzzer, 500);
+    myServo.write(90);
+
+    Blynk.virtualWrite(V1, 1); // Status alarm ON
+    Blynk.virtualWrite(V2, 90); // Servo posisi 90
+  }
+
+  delay(1000);
+}
