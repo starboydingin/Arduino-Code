@@ -1,0 +1,28 @@
+#define pir_pin 3
+#define ldrPin  A0 
+#define Lampu  8 //
+
+void setup() {
+  pinMode(pir_pin, INPUT);
+  pinMode(Lampu, OUTPUT);
+  
+  digitalWrite(Lampu, LOW);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int ldrValue = analogRead(ldrPin); 
+  bool motionDetected = digitalRead(pir_pin);
+
+  Serial.print(" | LDR: "); Serial.print(ldrValue);
+  Serial.print(" | Motion: "); Serial.println(motionDetected);
+
+  
+  if (ldrValue > 600 && motionDetected) { 
+    digitalWrite(Lampu, HIGH); 
+  } else {
+    digitalWrite(Lampu, LOW); 
+  }
+
+  delay(500);
+}
