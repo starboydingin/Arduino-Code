@@ -1,0 +1,45 @@
+#include <DHT.h>
+
+#define DHT_PIN 2
+#define DHTTYPE DHT22
+DHT dht (DHT_PIN, DHTTYPE);
+
+#define smokepin A0
+#define LED1 7
+#define LED2 8
+#define buzzer 4
+
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+
+  Serial.begin(9600);
+  dht.begin();
+
+}
+
+void loop() {
+  float suhu = dht.readTemperature();
+  int asap = analogRead(smokepin);
+
+  Serial.print("suhu: ");
+  Serial.println(suhu);
+  Serial.print("ketebalan asap: ");
+  Serial.println(asap);
+
+  if(asap > 400 && suhu > 50){
+    digitalWrite(LED1, HIGH);
+    digitalWrite(LED2, LOW);
+    delay (500);
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED2, HIGH);
+    tone(buzzer, 500);
+  }else{
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED2, LOW);
+    noTone(buzzer);
+  }
+  delay(1000);
+}
